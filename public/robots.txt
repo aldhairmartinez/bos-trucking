@@ -1,0 +1,7 @@
+# B.O.S. Trucking & Site, Inc.
+# Update the Sitemap host below when the production domain is connected.
+
+User-agent: *
+Allow: /
+
+Sitemap: https://bostruckingsite.com/sitemap.xml

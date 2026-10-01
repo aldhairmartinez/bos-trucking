@@ -1,0 +1,13 @@
+{
+  "name": "B.O.S. Trucking & Site, Inc.",
+  "short_name": "B.O.S. Trucking",
+  "description": "Bulk material delivery, tri-axle dump truck hauling, and secure truck parking in Fort Myers, Florida.",
+  "start_url": "/",
+  "display": "browser",
+  "background_color": "#0a0a0a",
+  "theme_color": "#0a0a0a",
+  "icons": [
+    { "src": "/favicon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "/favicon-512.png", "sizes": "512x512", "type": "image/png" }
+  ]
+}
