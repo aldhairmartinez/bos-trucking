@@ -1,0 +1,139 @@
+{
+  "_comment": [
+    "SINGLE SOURCE OF TRUTH FOR EVERY IMAGE ON THE SITE.",
+    "",
+    "The website's HTML never references a camera filename. It references the",
+    "stable logical IDs below. Swapping in the owner's original high-resolution",
+    "photos therefore means editing ONLY this file -- no HTML, CSS or JS change,",
+    "and no redesign.",
+    "",
+    "TO SWAP IN AN ORIGINAL HIGH-RES PHOTO:",
+    "  1. Drop the new file into  assets/incoming/",
+    "  2. In that image's entry below:  \"file\": \"incoming/<newfile>\"",
+    "  3. Set  \"crop\": null   (a real original has no letterbox bars to remove)",
+    "  4. Adjust \"focus\" if the subject sits somewhere new",
+    "  5. Run:  npm run images",
+    "See docs/swapping-images.md for the full walkthrough.",
+    "",
+    "FIELD REFERENCE",
+    "  file    Path relative to assets/. Today these point at assets/originals/,",
+    "          which holds the owner's supplied files byte-for-byte untouched.",
+    "  group   Output subdirectory under public/img/.",
+    "  crop    [left, top, right, bottom] in SOURCE-IMAGE pixel coordinates.",
+    "          Strips the iPhone letterbox bars and, where noted, burned-in",
+    "          marketing overlays. null = use the whole source.",
+    "  focus   Focal point as [x, y] fractions, 0..1, of the cropped image.",
+    "          Becomes `object-position` in the generated image-focus.css, so",
+    "          the subject stays in frame at every container aspect ratio.",
+    "  alpha   true -> key the solid black backing plate to transparent and",
+    "          emit PNG + WebP instead of AVIF/WebP/JPEG (logos only).",
+    "  formats Override the default avif/webp/jpg set.",
+    "  usage   Where this image appears. Documentation only.",
+    "",
+    "NOTE ON TODAY'S QUALITY CEILING",
+    "  Every current source is a 1290x2796 iPhone screenshot whose real content",
+    "  is a band in the middle. The pipeline NEVER upscales, so output tops out",
+    "  near 1290px wide. The markup already requests 1600/1920/2560; those rungs",
+    "  appear automatically the moment a true original is swapped in.",
+    "",
+    "  Photographs are served at their natural cropped aspect ratio. Containers",
+    "  set aspect-ratio and crop with `object-fit: cover`. Pre-cropping to each",
+    "  container's shape in the pipeline was discarding up to 45% of the width of",
+    "  sources that cannot spare it."
+  ],
+
+  "images": {
+    "bos-logo-badge": {
+      "file": "originals/IMG_0662.PNG",
+      "group": "brand",
+      "crop": [132, 904, 1189, 1880],
+      "alpha": true,
+      "formats": ["png", "webp"],
+      "usage": "Header, footer, favicons, section marks"
+    },
+    "bos-logo-horizontal": {
+      "file": "originals/IMG_0663.PNG",
+      "group": "brand",
+      "crop": [40, 1161, 1271, 1666],
+      "alpha": true,
+      "formats": ["png", "webp"],
+      "usage": "Footer lockup, social share card"
+    },
+
+    "bos-lot-sunset-fort-myers": {
+      "file": "originals/IMG_0661.PNG",
+      "group": "hero",
+      "crop": [0, 1155, 1290, 1625],
+      "_crop_note": "Removes the letterbox bars AND every burned-in flyer overlay: top headline band, feature strip, bottom-right phone box, bottom address bar. The B.O.S. sign on the gate is a real physical sign in the photograph and is kept.",
+      "focus": [0.45, 0.58],
+      "usage": "Desktop hero, tri-axle hauling service card, gallery"
+    },
+    "bos-mack-dump-truck": {
+      "file": "originals/IMG_0653.PNG",
+      "group": "trucks",
+      "crop": [0, 1020, 1290, 1784],
+      "_crop_note": "The clean photograph inside the Bulk Material Delivery flyer. Flyer headline above and materials bar below are excluded. Door decal is legible: B.O.S. badge, 'BOS Trucking and Site Inc, Fort Myers FL', USDOT 1418170, 239-900-6374, unit 8 -- verified B.O.S. equipment.",
+      "focus": [0.44, 0.52],
+      "usage": "Material delivery feature, material delivery service card, gallery"
+    },
+    "bos-mack-dump-truck-portrait": {
+      "file": "originals/IMG_0653.PNG",
+      "group": "trucks",
+      "crop": [150, 1020, 761, 1784],
+      "_crop_note": "Portrait 4:5 window onto the same clean photograph, framed on the grille, hood and cab. Used because the wide sunset panorama cannot crop to portrait.",
+      "focus": [0.5, 0.5],
+      "usage": "Mobile hero (art-directed)"
+    },
+    "bos-parking-lot-gate": {
+      "file": "originals/IMG_0660.PNG",
+      "group": "parking",
+      "crop": [0, 914, 1290, 1882],
+      "focus": [0.5, 0.44],
+      "usage": "Truck parking service card, parking section backdrop, gallery"
+    },
+    "bos-parking-lot-wide": {
+      "file": "originals/IMG_0656.PNG",
+      "group": "parking",
+      "crop": [0, 1060, 1290, 1736],
+      "_crop_note": "The owner supplied this as a pre-cropped wide band of the same frame as IMG_0660. Kept because the ready-made panoramic crop suits the full-width parking band.",
+      "focus": [0.52, 0.48],
+      "usage": "Parking section wide band, gallery"
+    },
+    "bos-yard-sign": {
+      "file": "originals/IMG_0658.PNG",
+      "group": "property",
+      "crop": [0, 914, 1290, 1882],
+      "focus": [0.36, 0.5],
+      "usage": "About / our yard, gallery"
+    }
+  },
+
+  "reference_only": {
+    "_comment": "Marketing flyers. Prepared into assets/reference/ for design and fact reference. NEVER shipped to the browser. The information on them was extracted and rebuilt natively in the website.",
+    "flyer-parking-rates": {
+      "file": "originals/IMG_0659.PNG",
+      "crop": [45, 789, 1285, 2028],
+      "note": "Source of truth for the $75 / $140 / $200 rates and the verbatim pricing disclaimer."
+    },
+    "flyer-bulk-material-delivery": {
+      "file": "originals/IMG_0653.PNG",
+      "crop": [0, 592, 1290, 2204],
+      "note": "Contains the real, verified B.O.S. Mack dump truck photograph used on the site."
+    },
+    "flyer-material-hauling-official": {
+      "file": "originals/IMG_0654.PNG",
+      "crop": [3, 753, 1289, 2042],
+      "note": "AI-generated truck and landscape. Facts used; imagery EXCLUDED from the site."
+    },
+    "flyer-now-hiring-cdl": {
+      "file": "originals/IMG_0652.PNG",
+      "crop": [0, 459, 1290, 2325],
+      "note": "CDL A/B tri-axle dump driver recruiting. IMG_0655 is a pixel-identical duplicate."
+    },
+    "flyer-parking-available-offbrand": {
+      "file": "originals/IMG_0657.PNG",
+      "crop": [0, 753, 1290, 2042],
+      "note": "Navy/red/white palette and stock semi photography. Off-brand. EXCLUDED from the site."
+    }
+  }
+}
