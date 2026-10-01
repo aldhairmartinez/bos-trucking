@@ -99,9 +99,10 @@ Wix Forms is **already installed** and works on the free plan. Submissions land 
 does. Either build two separate forms, or use one form with all fields and mark the
 mode-specific ones optional. Two forms is cleaner for the owner reading submissions.
 
-### Path B — Cloudflare Worker + Resend *(if we host on Cloudflare Pages)*
+### Path B — Cloudflare Worker + Resend *(if we host on Cloudflare Workers)*
 
-A Pages Function at `functions/api/quote.js`:
+This is the one case that needs a Worker script. Add `main` to `wrangler.jsonc` and a
+handler that runs before assets for `/api/*` (`run_worker_first`), which:
 
 1. Accept `POST`, parse the form body
 2. Reject if `_hp` is non-empty (bot)
@@ -112,7 +113,7 @@ A Pages Function at `functions/api/quote.js`:
 Then set `action="/api/quote"` on both forms and remove nothing else — `quote-form.js`
 detects a real action and stops showing the preview notice.
 
-Secrets go in Cloudflare → Pages → Settings → Environment variables, **never in Git**:
+Secrets go in Cloudflare → the Worker → Settings → Variables and Secrets, **never in Git**:
 
 ```
 RESEND_API_KEY=<set in the Cloudflare dashboard>

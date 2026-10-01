@@ -71,10 +71,14 @@ flowchart TB
     F["fonts/ — 4 WOFF2 subsets<br/>self-hosted, 78 KB"]
   end
 
-  subgraph prod["Production — likely path"]
-    GH["GitHub<br/>(not pushed yet)"]
-    CF["Cloudflare Pages<br/>free · global CDN"]
+  subgraph prod["Production — intended path"]
+    GH["GitHub<br/>aldhairmartinez/bos-trucking"]
+    CF["Cloudflare Workers<br/>static assets · free"]
     DOM["Custom domain"]
+  end
+
+  subgraph review["Review — live now"]
+    GHP["GitHub Pages<br/>noindex · temporary"]
   end
 
   O --> C
@@ -90,6 +94,7 @@ flowchart TB
   JS --> K
 
   site --> GH --> CF --> DOM
+  GH --> GHP
 
   WIX["ALTERNATIVE<br/>rebuild by hand in<br/>the owner's Wix Editor"]
   site -.->|design spec| WIX
@@ -127,7 +132,8 @@ python3 scripts/check.py
 
 The dev server adds two things bare `http.server` lacks: correct MIME types for
 `.avif` / `.webp` / `.woff2`, and clean URLs with a real 404 — so `/quote` resolves and
-unknown paths serve the branded `404.html` with a 404 status, matching Cloudflare Pages.
+unknown paths serve the branded `404.html` with a 404 status, matching how Cloudflare
+Workers static assets behave.
 
 The image pipeline needs Pillow (only `scripts/` touches it):
 
@@ -193,15 +199,16 @@ Mapping and the full audit: [`docs/asset-inventory.md`](docs/asset-inventory.md)
 
 ## 5. Deployment
 
-**Likely production path: GitHub → Cloudflare Pages → custom domain.**
-`public/` is already a valid Cloudflare Pages site with no build command and no config.
+**Intended production path: GitHub → Cloudflare Workers → custom domain.** Configured in
+`wrangler.jsonc` as an assets-only Worker serving `public/` at the domain root — no build
+step, no dependencies. **Configured but not yet deployed.**
 
 **Alternative: rebuild by hand in the owner's existing Wix Editor**, using this site as
 the design specification. Our HTML/CSS cannot be deployed *into* a classic Wix Editor
 site — that constraint is real and documented.
 
-Both paths, with costs and trade-offs: [`docs/deployment.md`](docs/deployment.md).
-Nothing has been deployed anywhere, and nothing has been pushed to GitHub.
+Both paths, with costs and trade-offs — plus the exact Cloudflare build/deploy/preview
+command values: [`docs/deployment.md`](docs/deployment.md).
 
 ---
 
@@ -298,10 +305,10 @@ Full click-paths in [`docs/wix-setup.md`](docs/wix-setup.md).
 
 - [ ] Ask the owner the questions in **"Verify with the owner"** below.
 - [ ] Choose: **(A)** rebuild by hand in the Wix Editor, free, owner keeps the visual
-      editor, ~70% design fidelity; or **(E)** GitHub → Cloudflare Pages, free, 100%
+      editor, ~70% design fidelity; or **(E)** GitHub → Cloudflare Workers, free, 100%
       fidelity, owner gives up the Wix editor. See `docs/deployment.md`.
 - [ ] If the owner wants a custom domain and no Wix ad banner, price the Wix upgrade
-      against Cloudflare Pages + a ~$10/yr domain.
+      against Cloudflare Workers + a ~$10/yr domain.
 
 ### Phase 3 — If path A, rebuild in Wix (half day)
 
@@ -326,8 +333,9 @@ Full click-paths in [`docs/wix-setup.md`](docs/wix-setup.md).
 ### Phase 4 — If path E, ship the static site (1 hour)
 
 - [ ] Get explicit approval, then create the GitHub repo and push.
-- [ ] Cloudflare Pages → Connect to Git → build command: *none*, output directory:
-      `public`.
+- [ ] Cloudflare → Workers & Pages → Connect to Git. Build command: *empty*; Deploy
+      command: `npx wrangler deploy`; Preview command: `npx wrangler versions upload`.
+      `wrangler.jsonc` supplies the rest.
 - [ ] Connect the custom domain; verify HTTPS.
 - [ ] Replace `https://bostruckingsite.com` placeholders in `robots.txt`, `sitemap.xml`,
       and every `canonical` / `og:*` tag with the real domain.
@@ -376,6 +384,7 @@ Nothing below is on the site, because none of it is confirmed.
 README.md                  this file
 package.json               task runner only — no dependencies
 .gitignore / .editorconfig
+wrangler.jsonc             Cloudflare Workers config — serves public/ at the domain root
 
 docs/
   architecture.md          how the site is put together and why
@@ -387,7 +396,7 @@ docs/
   forms.md                 field specs + how to wire submissions
   payments.md              Stripe / Wix research, PCI boundary (not implemented)
   wix-setup.md             Wix platform research + tomorrow's click-paths
-  deployment.md            Cloudflare Pages (likely) vs Wix rebuild (alternative)
+  deployment.md            GitHub Pages (live review) · Cloudflare Workers · Wix rebuild
 
 assets/                    source images — committed, never served
 public/                    THE WEBSITE — serve this directory

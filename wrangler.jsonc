@@ -1,0 +1,40 @@
+// Cloudflare Workers configuration — B.O.S. Trucking & Site
+//
+// This deploys the existing static site in public/ as an assets-only Worker,
+// served at the root of the Worker's domain. Nothing about the site changes:
+// public/ is uploaded exactly as it is in the repository.
+//
+// WHY AN ASSETS-ONLY WORKER
+// The `main` key is optional for assets-only Workers, so there is no Worker
+// script here at all. Cloudflare serves the files straight from its edge, which
+// is the fastest and cheapest shape for a brochure site and needs no build step.
+//
+// ROOT-RELATIVE PATHS WORK HERE
+// The site is authored with root-absolute paths (/css/…, /img/…, /quote.html).
+// Because `directory` below maps to the domain root, those resolve correctly
+// with no rewriting. (The GitHub Pages deployment needs a sub-path rewrite at
+// deploy time — see scripts/stage-for-pages.py — precisely because a project
+// site is NOT served at a domain root. Cloudflare needs none of that.)
+//
+// Docs: https://developers.cloudflare.com/workers/static-assets/
+{
+  "name": "bos-trucking",
+
+  // Pins which version of the Workers runtime is used.
+  "compatibility_date": "2026-10-01",
+
+  "assets": {
+    // The site directory, uploaded as-is and served from the domain root.
+    "directory": "./public/",
+
+    // Serve public/404.html with a real 404 status for unmatched paths, rather
+    // than Cloudflare's generic error page. Default is "none".
+    "not_found_handling": "404-page",
+
+    // Clean URLs: /quote serves public/quote.html, and /quote.html redirects to
+    // /quote. This is Cloudflare's default, but it is set explicitly because it
+    // has to agree with the extensionless URLs already used in
+    // public/sitemap.xml and in every <link rel="canonical">.
+    "html_handling": "auto-trailing-slash"
+  }
+}

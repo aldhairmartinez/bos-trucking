@@ -258,9 +258,10 @@ Run `npm run check` before every commit.
 
 ## 9. Production
 
-**Likely: GitHub → Cloudflare Pages → custom domain.** `public/` is already a valid
-Pages site: no build command, output directory `public`. `serve.py` deliberately mimics
-Pages' clean-URL and 404 behaviour so local review matches production.
+**Intended: GitHub → Cloudflare Workers → custom domain.** `wrangler.jsonc` deploys
+`public/` as an assets-only Worker at the domain root — no build step, no dependencies.
+`serve.py` deliberately mimics its clean-URL and 404 behaviour so local review matches
+production. Configured but not yet deployed.
 
 **Alternative: rebuild by hand in the owner's classic Wix Editor**, using this site as
 the design specification. Our HTML/CSS cannot be deployed *into* a classic Editor site;

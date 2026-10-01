@@ -14,7 +14,7 @@ Where the build departs from this brief, the departure is recorded and justified
   [`content-inventory.md`](content-inventory.md).
 - **No payments of any kind** — superseded by a later instruction, since we do not know
   how the owner currently accepts payment. See [`payments.md`](payments.md).
-- **Production path is GitHub → Cloudflare Pages**, with a Wix rebuild as the alternative,
+- **Production path is GitHub → Cloudflare Workers**, with a Wix rebuild as the alternative,
   because our HTML cannot be deployed into a classic Wix Editor site. See
   [`deployment.md`](deployment.md) and [`wix-setup.md`](wix-setup.md).
 

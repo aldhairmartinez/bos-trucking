@@ -49,33 +49,98 @@ gh api -X DELETE repos/aldhairmartinez/bos-trucking/pages   # unpublish
 
 ## Not yet done
 
-Cloudflare Pages, a custom domain, and any change to the owner's Wix site. Nothing has
-been purchased and no payments have been implemented.
+The Cloudflare deployment itself, a custom domain, and any change to the owner's Wix
+site. Nothing has been purchased and no payments have been implemented.
 
 ---
 
-## Intended production path (next step, not yet done)
+## Intended production path: Cloudflare Workers (configured, not yet deployed)
 
 ```
-GitHub  →  Cloudflare Pages  →  custom domain
+GitHub  →  Cloudflare Workers (static assets)  →  custom domain
 ```
 
-This is the recommended route. `public/` is already a valid Cloudflare Pages site:
+`wrangler.jsonc` in the repository root configures this. The site deploys as an
+**assets-only Worker** — no Worker script, no build step, no dependencies. Cloudflare
+serves `public/` straight from its edge.
 
-| Setting | Value |
+```jsonc
+{
+  "name": "bos-trucking",
+  "compatibility_date": "2026-10-01",
+  "assets": {
+    "directory": "./public/",
+    "not_found_handling": "404-page",
+    "html_handling": "auto-trailing-slash"
+  }
+}
+```
+
+### Settings for the Cloudflare "Workers & Pages" setup screen
+
+| Field | Value |
 |---|---|
-| Framework preset | **None** |
-| Build command | *(leave empty)* |
-| Build output directory | `public` |
-| Root directory | *(repository root)* |
+| **Build command** | *(leave empty)* |
+| **Deploy command** | `npx wrangler deploy` |
+| **Preview command** | `npx wrangler versions upload` |
+| Root directory | *(leave empty — `wrangler.jsonc` is at the repo root)* |
 
-No build step, no `node_modules`, no environment variables. Cloudflare serves the files.
+The build command is optional in Workers Builds and this site has no build step, so it
+stays empty. `npx wrangler deploy` is Cloudflare's default and is correct as-is.
+
+The preview command's default is `npx wrangler preview`; `npx wrangler versions upload`
+is used instead because it produces a shareable **version URL** for each non-production
+branch, which is more useful for review.
+
+### Why no path rewriting is needed here
+
+The site is authored with root-absolute paths (`/css/…`, `/img/…`, `/quote.html`), which
+is correct for a domain root. `assets.directory` maps `public/` to the domain root, so
+they resolve natively.
+
+This is the one meaningful difference from the GitHub Pages deployment, which serves from
+a `/bos-trucking/` sub-path and therefore needs `scripts/stage-for-pages.py` to rewrite
+those paths at deploy time. Cloudflare needs none of that machinery.
+
+### Routing behaviour
+
+- `not_found_handling: "404-page"` serves `public/404.html` with a real 404 status
+- `html_handling: "auto-trailing-slash"` gives clean URLs: `/quote` serves `quote.html`,
+  and `/quote.html` redirects to `/quote`. This is Cloudflare's default, and it is set
+  explicitly because it has to agree with the extensionless URLs already in
+  `public/sitemap.xml` and in every `<link rel="canonical">`
+
+### Why this path
+
+- **100% design fidelity** — it ships exactly what you reviewed locally
+- **Free** — the Workers free tier covers a site this size; a domain is roughly $10/year
+- **Fast** — global edge, automatic HTTPS, HTTP/3, Brotli
+- **Git-native** — push to deploy, every change a reviewable commit, instant rollback
+
+**The cost**: the owner loses the Wix visual editor. Content changes go through this repo.
+For a site whose content is a phone number, three rates and ten material names, that is
+usually the right trade — but it is **the owner's call, not ours.**
+
+`scripts/serve.py` deliberately mimics this clean-URL and 404 behaviour, so what you
+review locally matches what ships.
+
+### Optional tuning, deliberately not done
+
+- **Pinned Wrangler.** Workers Builds uses the Wrangler version from `package.json`.
+  There is none, so `npx` resolves the latest on each build. Adding
+  `"devDependencies": { "wrangler": "^4" }` would pin it, at the cost of introducing the
+  first dependency and a lockfile to a repo that currently has neither.
+- **Custom cache headers.** Cloudflare defaults static assets to
+  `Cache-Control: public, max-age=0, must-revalidate` with an `ETag`, which is safe and
+  cheap to revalidate. A `_headers` file in `public/` could cache fonts and images
+  aggressively — but filenames are not content-hashed, so long `immutable` lifetimes
+  would serve stale photos after the owner's real originals are swapped in. Left alone
+  on purpose.
 
 **Why this path**
 
 - **100% design fidelity** — it ships exactly what you reviewed locally
-- **Free** — Cloudflare Pages' free tier is unmetered bandwidth for a site this size; a
-  domain is roughly $10/year
+- **Free** — the Workers free tier covers a site this size; a domain is roughly $10/year
 - **Fast** — global CDN, automatic HTTPS, HTTP/3, Brotli
 - **Real responsive control** — no separate mobile editor to maintain
 - **Git-native** — every change is a reviewable commit; push to deploy; instant rollback
@@ -151,8 +216,8 @@ Then:
 
 ## Rollback
 
-**Cloudflare Pages** — every push is a numbered deployment. Dashboard → Deployments →
-*Rollback*. Instant, no rebuild.
+**Cloudflare Workers** — every deploy is a numbered version. Dashboard → the Worker →
+Deployments → roll back to a previous version. Instant, no rebuild.
 
 **Wix** — Site → Site History → restore the `pre-redesign-<date>` version. Create that
 restore point *before* making any edit.
@@ -163,7 +228,8 @@ restore point *before* making any edit.
 
 | Path | Setup | Ongoing |
 |---|---|---|
-| GitHub → Cloudflare Pages + domain | Free | **~$10/year** (domain only) |
+| GitHub → Cloudflare Workers + domain | Free | **~$10/year** (domain only) |
+| GitHub Pages (current review URL) | Free | **$0** — subpath, noindex, temporary |
 | Wix rebuild, stay on free | Free | **$0** — keeps ad banner, no custom domain |
 | Wix rebuild + Premium | Free | **~$17–29/month**, varies — verify current Wix pricing |
 | Wix Studio rebuild | Premium required | Wix Studio plan |
