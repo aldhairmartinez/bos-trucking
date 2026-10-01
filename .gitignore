@@ -73,3 +73,6 @@ desktop.ini
 !.vscode/extensions.json
 .fleet/
 *.sublime-workspace
+
+# Staging output of scripts/stage-for-pages.py (built in CI, never committed).
+_site/

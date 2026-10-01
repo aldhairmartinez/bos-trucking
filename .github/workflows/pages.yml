@@ -1,0 +1,81 @@
+name: Deploy to GitHub Pages
+
+# Temporary public hosting so the business owner can review the site.
+#
+# GitHub Pages cannot be pointed at an arbitrary folder when deploying from a
+# branch -- only the repository root or /docs. Our site lives in public/, so we
+# deploy via Actions instead, which can publish any directory.
+#
+# A project site is served from a sub-path (https://<user>.github.io/<repo>/),
+# but the site is authored with root-absolute paths because that is correct for
+# the eventual custom domain. scripts/stage-for-pages.py bridges the two by
+# producing an adjusted copy at deploy time, so nothing in the repository has to
+# change and public/ stays deployable at a domain root exactly as it is.
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Never run two deployments at once; let an in-flight one finish.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Quality checks
+        run: python3 scripts/check.py
+
+      - name: Stage public/ for the Pages sub-path
+        env:
+          BASE_PATH: /${{ github.event.repository.name }}
+          SITE_URL: ${{ steps.pages.outputs.base_url }}
+        run: |
+          python3 scripts/stage-for-pages.py \
+            --base "/${{ github.event.repository.name }}" \
+            --site-url "https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}" \
+            --out _site \
+            --noindex
+
+      - name: Fail if any root-absolute path was missed
+        run: |
+          # A leftover root-absolute path would 404 under the sub-path, so treat
+          # it as a build failure rather than shipping a broken page.
+          if grep -rohE '(href|src|action|data-lightbox-src)="/[^"]*"' _site/*.html \
+             | grep -v '="/${{ github.event.repository.name }}/'; then
+            echo "::error::Found root-absolute paths that will 404 under the Pages sub-path"
+            exit 1
+          fi
+          echo "All paths correctly prefixed."
+
+      - uses: actions/configure-pages@v5
+        id: pages
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
