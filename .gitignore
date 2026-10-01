@@ -1,0 +1,75 @@
+# ---------------------------------------------------------------------------
+# Secrets — never commit. This repository is expected to become public.
+# ---------------------------------------------------------------------------
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+*.keystore
+credentials.json
+secrets.json
+secrets/
+*.secret
+*_rsa
+*_rsa.pub
+*.token
+.netrc
+.npmrc
+.wrangler/
+.dev.vars
+
+# Wix / Stripe / Cloudflare local state
+.wix/
+.wixcli/
+wix.config.local.json
+.stripe/
+.cloudflared/
+
+# ---------------------------------------------------------------------------
+# Dependencies & build artifacts
+# ---------------------------------------------------------------------------
+node_modules/
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+dist/
+build/
+.cache/
+*.log
+npm-debug.log*
+yarn-error.log*
+
+# Working scratch space for image experiments (derivatives are committed;
+# anything in assets/scratch is throwaway).
+assets/scratch/
+
+# The owner's supplied files as originally dropped in. These are preserved in
+# the repository at assets/originals/ instead, byte-for-byte identical and
+# verified with cmp. Ignoring this directory avoids committing 22 MB twice.
+# It is left on disk rather than deleted — remove it manually once you are
+# satisfied assets/originals/ is the copy you want to keep.
+/photos/
+
+# ---------------------------------------------------------------------------
+# OS / editor noise
+# ---------------------------------------------------------------------------
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+*.swp
+*.swo
+*~
+.idea/
+.vscode/*
+!.vscode/extensions.json
+.fleet/
+*.sublime-workspace

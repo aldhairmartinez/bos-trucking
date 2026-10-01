@@ -1,0 +1,32 @@
+{
+  "name": "bos-trucking-site",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Website for B.O.S. Trucking & Site, Inc. — Fort Myers, FL. Static HTML/CSS/JS, no framework, no build step.",
+  "license": "UNLICENSED",
+  "scripts": {
+    "start": "python3 scripts/serve.py",
+    "dev": "python3 scripts/serve.py",
+    "serve": "python3 scripts/serve.py",
+    "images": "python3 scripts/crop-source.py && python3 scripts/build-images.py",
+    "images:crop": "python3 scripts/crop-source.py",
+    "images:build": "python3 scripts/build-images.py",
+    "check": "python3 scripts/check.py"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "comment": [
+    "There are no runtime or build dependencies, and no node_modules is",
+    "required to run or edit this site. npm is used only as a familiar task",
+    "runner; every script shells out to Python 3 and the standard library,",
+    "plus Pillow for the image pipeline.",
+    "",
+    "  npm start    -> local preview at http://localhost:8080",
+    "  npm run images -> regenerate public/img/** from assets/sources.json",
+    "  npm run check  -> link, asset, accessibility and SEO checks",
+    "",
+    "Pillow is the only external package, and only scripts/ needs it:",
+    "  python3 -m pip install --user Pillow"
+  ]
+}
