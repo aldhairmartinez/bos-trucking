@@ -10,6 +10,15 @@ markup. Open it and it works.
 npm start          →  http://localhost:8080
 ```
 
+### 🔗 Temporary review URL
+
+**https://aldhairmartinez.github.io/bos-trucking/**
+
+Public GitHub Pages hosting so the business owner can review the site. It is deliberately
+`noindex, nofollow` with `robots.txt` set to `Disallow: /`, so it cannot compete with the
+live Wix site in search results or create duplicate-content problems. **Not the final
+home** — see [`docs/deployment.md`](docs/deployment.md).
+
 ---
 
 ## 1. The business

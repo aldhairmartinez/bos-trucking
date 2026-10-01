@@ -1,11 +1,60 @@
 # Deployment
 
-**Nothing has been deployed. Nothing has been pushed to GitHub.** Both require explicit
-approval.
+## Currently live: GitHub Pages (temporary review hosting)
+
+**https://aldhairmartinez.github.io/bos-trucking/**
+
+| | |
+|---|---|
+| Repository | `aldhairmartinez/bos-trucking` (public) |
+| Source | `public/`, published via `.github/workflows/pages.yml` |
+| Trigger | every push to `main`, plus manual `workflow_dispatch` |
+| Indexing | **`noindex, nofollow`** + `robots.txt` `Disallow: /` |
+| Cost | $0 |
+
+This exists so the business owner can review the site from a real URL. It is **not the
+final home**, and nothing about it is permanent.
+
+### Why a workflow instead of "deploy from a branch"
+
+GitHub Pages can only publish the repository root or `/docs` when deploying from a branch
+— not an arbitrary folder. The site lives in `public/`, so it is published via Actions,
+which can take any directory.
+
+### Why the site is rewritten at deploy time
+
+A project site is served from a sub-path (`/bos-trucking/`), but the site is authored with
+root-absolute paths (`/css/…`, `/img/…`) because that is correct for the eventual custom
+domain. Under a sub-path those would all 404.
+
+`scripts/stage-for-pages.py` produces an adjusted **copy** during the build. The
+repository is never modified, so `public/` stays deployable at a domain root exactly as it
+is. The script also repoints canonical links, Open Graph tags, JSON-LD and the sitemap at
+the deployment URL, and applies the `noindex`. The workflow fails the build if any
+root-absolute path survives the rewrite.
+
+### When this becomes the real site
+
+Drop `--noindex` from the staging step in `.github/workflows/pages.yml`, and if a custom
+domain is connected, drop `--base` too (a domain root needs no prefix).
+
+### Retiring it
+
+```bash
+gh api -X DELETE repos/aldhairmartinez/bos-trucking/pages   # unpublish
+# or make the repository private, which disables Pages on a free account
+```
 
 ---
 
-## Likely production path
+## Not yet done
+
+Cloudflare Pages, a custom domain, and any change to the owner's Wix site. Nothing has
+been purchased and no payments have been implemented.
+
+---
+
+## Intended production path (next step, not yet done)
 
 ```
 GitHub  →  Cloudflare Pages  →  custom domain
